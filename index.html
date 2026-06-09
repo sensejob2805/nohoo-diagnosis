@@ -1,6 +1,3 @@
-
-raw
-Index · HTML
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,11 +5,35 @@ Index · HTML
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>생애영역별 노후준비 진단</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ★ Firebase 설정 (은주님 프로젝트)
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8g1dCEwJ5FrE9c6a4hVEONQdOwTsQ8hU",
+    authDomain: "nohoo-diagnosis.firebaseapp.com",
+    projectId: "nohoo-diagnosis",
+    storageBucket: "nohoo-diagnosis.firebasestorage.app",
+    messagingSenderId: "719141943540",
+    appId: "1:719141943540:web:c9b29f194ba451a0e186a1",
+    measurementId: "G-GFSPHPF7CK"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window._db = db;
+  window._fbReady = true;
+  window._addDoc = addDoc;
+  window._collection = collection;
+  window._getDocs = getDocs;
+  window._doc = doc;
+  window._setDoc = setDoc;
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;background:#F3F4F6;color:#111}
 .screen{display:none;flex-direction:column;min-height:100vh}.screen.active{display:flex}
-/* WELCOME */
 .w-hero{background:#1a3a28;padding:2rem 1.25rem 1.75rem}
 .w-badge{display:inline-block;font-size:13px;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,0.15);color:#aed6b8;margin-bottom:1.25rem;font-weight:500}
 .w-title{font-size:28px;font-weight:700;line-height:1.35;margin-bottom:.75rem;color:#fff}
@@ -26,9 +47,7 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
 .w-input:focus{border-color:#1a3a28}
 .btn-big{width:100%;margin-top:1.25rem;padding:20px;background:#1a3a28;color:#fff;border:none;border-radius:12px;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn-big:active{opacity:.85}
-.btn-outline{width:100%;margin-top:.75rem;padding:16px;background:transparent;border:1.5px solid #D1D5DB;border-radius:12px;font-size:15px;cursor:pointer;color:#6B7280;font-family:inherit}
 .err{font-size:14px;color:#e74c3c;margin-top:.5rem;display:none}
-/* QUIZ */
 .q-header{background:#fff;border-bottom:1px solid #E5E7EB;padding:1rem 1.25rem;position:sticky;top:0;z-index:10}
 .q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
 .area-pill{font-size:14px;font-weight:600;padding:5px 14px;border-radius:999px}
@@ -61,7 +80,6 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
 .btn-prev{flex:0 0 60px;height:60px;border:1.5px solid #D1D5DB;border-radius:12px;background:#fff;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center}
 .btn-nxt{flex:1;height:60px;border:none;border-radius:12px;background:#1a3a28;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}
 .btn-nxt:disabled{opacity:.3;cursor:not-allowed}
-/* RESULT */
 .r-hero{background:#1a3a28;padding:2rem 1.25rem 1.75rem;text-align:center}
 .r-name{font-size:15px;color:rgba(255,255,255,.65);margin-bottom:.4rem}
 .r-ttl{font-size:22px;font-weight:700;color:#fff;margin-bottom:1.25rem}
@@ -84,16 +102,17 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
 .gd-row:last-child{border-bottom:none}
 .gd-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 .gd-txt{font-size:14px;flex:1}.gd-range{font-size:13px;color:#6B7280}
-.fb-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #E5E7EB}
+.fb-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #E5E7EB}
 .fb-row:last-child{border-bottom:none;padding-bottom:0}
-.fb-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
-.fb-area{font-size:13px;color:#6B7280;margin-bottom:3px}
-.fb-msg{font-size:15px;line-height:1.55;color:#111}
+.fb-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.fb-area{font-size:13px;color:#6B7280;margin-bottom:4px;font-weight:500}
+.fb-weak{font-size:13px;color:#991b1b;background:#fef2f2;border-radius:8px;padding:6px 10px;margin-bottom:6px;line-height:1.5}
+.fb-msg{font-size:14px;line-height:1.6;color:#111}
 .r-actions{padding:0 1.25rem 2.5rem;display:flex;gap:10px}
 /* ADMIN */
-.adm-hero{background:#fff;border-bottom:1px solid #E5E7EB;padding:1.5rem 1.25rem}
-.adm-hero h2{font-size:22px;font-weight:700;margin-bottom:.3rem;color:#111}
-.adm-hero p{font-size:15px;color:#6B7280}
+.adm-hero{background:#1a3a28;padding:1.5rem 1.25rem}
+.adm-hero h2{font-size:22px;font-weight:700;margin-bottom:.3rem;color:#fff}
+.adm-hero p{font-size:15px;color:rgba(255,255,255,.65)}
 .adm-body{padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem}
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .metric{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:1.25rem;text-align:center}
@@ -127,10 +146,16 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
 .spin{width:32px;height:32px;border:2px solid #E5E7EB;border-top-color:#1a3a28;border-radius:50%;animation:sp .7s linear infinite;margin:2rem auto}
 @keyframes sp{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:3rem 1.25rem;color:#6B7280;font-size:16px;line-height:1.6}
+.pw-box{padding:1.5rem 1.25rem;background:#fff;flex:1;display:flex;flex-direction:column;justify-content:center}
+.pw-title{font-size:20px;font-weight:700;margin-bottom:.5rem;color:#111}
+.pw-desc{font-size:14px;color:#6B7280;margin-bottom:1.5rem}
+.pw-input{width:100%;padding:16px 18px;border:1.5px solid #D1D5DB;border-radius:12px;font-size:18px;background:#fff;color:#111;outline:none;font-family:inherit;letter-spacing:4px}
+.pw-input:focus{border-color:#1a3a28}
+.pw-err{font-size:14px;color:#e74c3c;margin-top:.5rem;display:none}
 </style>
 </head>
 <body>
- 
+
 <!-- WELCOME -->
 <div id="sw" class="screen active">
   <div class="w-hero">
@@ -148,10 +173,9 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
     <p style="font-size:14px;color:#9CA3AF;margin-top:.5rem">입력하신 이름으로 결과가 저장됩니다.</p>
     <div id="nameErr" class="err">이름을 입력해 주세요</div>
     <button class="btn-big" onclick="startQuiz()">진단 시작하기 →</button>
-    <button class="btn-outline" onclick="goAdmin()">교육자 대시보드</button>
   </div>
 </div>
- 
+
 <!-- QUIZ -->
 <div id="sq" class="screen">
   <div class="q-header">
@@ -189,7 +213,7 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
     <button class="btn-nxt" id="bNext" onclick="nextQ()" disabled>다음 문항</button>
   </div>
 </div>
- 
+
 <!-- RESULT -->
 <div id="sr" class="screen">
   <div class="r-hero">
@@ -221,21 +245,37 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
     <div class="card" id="fbCard"><div class="card-ttl" style="margin-bottom:.75rem">맞춤 피드백</div></div>
   </div>
   <div class="r-actions">
-    <button class="btn-nxt" style="flex:1;height:60px;font-size:17px" onclick="saveResult()">📤 결과 저장하기</button>
+    <button class="btn-nxt" style="flex:1;height:60px;font-size:17px" onclick="saveResult()" id="saveBtn">📤 결과 저장하기</button>
     <button class="btn-prev" onclick="goHome()">🏠</button>
   </div>
 </div>
- 
+
+<!-- 강사 비밀번호 -->
+<div id="spw" class="screen">
+  <div class="w-hero">
+    <div class="w-badge">강사 전용</div>
+    <h1 class="w-title">교육자<br>대시보드</h1>
+    <p class="w-desc">강사 전용 화면입니다. 비밀번호를 입력해 주세요.</p>
+  </div>
+  <div class="pw-box">
+    <div class="pw-title">비밀번호 입력</div>
+    <div class="pw-desc">교육자만 접근 가능한 화면입니다.</div>
+    <input type="password" id="pwIn" class="pw-input" placeholder="••••" maxlength="10" autocomplete="off">
+    <div id="pwErr" class="pw-err">비밀번호가 틀렸습니다.</div>
+    <button class="btn-big" style="margin-top:1.25rem" onclick="checkPw()">입장하기</button>
+    <button class="btn-nxt" style="background:#fff;color:#6B7280;border:1.5px solid #D1D5DB;margin-top:.75rem;height:52px;font-size:15px;border-radius:12px" onclick="goHome()">← 돌아가기</button>
+  </div>
+</div>
+
 <!-- ADMIN -->
 <div id="sa" class="screen">
   <div class="adm-hero"><h2>교육자 대시보드</h2><p>전체 교육생 진단 결과 상세 분석</p></div>
   <div class="adm-body" id="aBody"></div>
   <div style="padding:0 1.25rem 2.5rem;display:flex;gap:10px">
-    <button class="btn-outline" style="flex:1" onclick="show('sw')">← 돌아가기</button>
-    <button class="btn-outline" style="flex:0 0 auto;color:#e74c3c;border-color:#e74c3c" onclick="clearAll()">전체 삭제</button>
+    <button class="btn-nxt" style="flex:1;height:52px;font-size:15px;background:#fff;color:#6B7280;border:1.5px solid #D1D5DB;border-radius:12px" onclick="goHome()">← 나가기</button>
   </div>
 </div>
- 
+
 <!-- SHEET -->
 <div class="sheet-ov" id="shOv" onclick="closeSheet(event)">
   <div class="sheet">
@@ -244,8 +284,10 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif
     <div class="sh-body" id="shBody"></div>
   </div>
 </div>
- 
+
 <script>
+const ADMIN_PW = '1234'; // ★ 강사 비밀번호 (원하시면 변경)
+
 const AREAS=[
   {n:'변화관리',l:'가',c:'#2A5C45'},{n:'자산관리',l:'나',c:'#1A6B8A'},
   {n:'건강관리',l:'다',c:'#7B4F9E'},{n:'내 일 관리',l:'라',c:'#C0392B'},
@@ -254,11 +296,51 @@ const AREAS=[
 ];
 const SEL_LABELS={5:'5점 — 매우 그렇다',4:'4점 — 그렇다',3:'3점 — 보통',2:'2점 — 아니다',1:'1점 — 전혀 아니다'};
 const SEL_COLORS={5:'#1a6b3a',4:'#1e8449',3:'#b7770d',2:'#ca6f1e',1:'#b03a2e'};
-const FB={
-  good:['매우 잘 준비되어 있습니다. 이 강점을 다른 영역에도 연결해 보세요.','훌륭한 준비 상태입니다. 지금처럼 유지해 주세요.'],
-  warn:['기본은 갖춰져 있으나 더 구체적인 계획이 필요합니다.','어느 정도 준비되어 있습니다. 실행 목표를 세워 보강해 보세요.'],
-  danger:['지금 바로 집중적인 점검과 준비가 필요합니다.','작은 것부터 하나씩 시작해 보세요. 전문가 상담도 도움이 됩니다.'],
+
+// 취약 문항별 맞춤 피드백
+const Q_FB={
+  0:'직업세계 변화 적응력이 취약함. 새로운 분야 탐색과 변화 수용 훈련이 필요함.',
+  1:'자기 인식과 신체·정신적 상태 점검이 부족함. 정기적 자기 돌봄 루틴을 만들 필요가 있음.',
+  2:'시장 정보 습득이 미흡함. 관심 분야 뉴스·트렌드를 주 1회 이상 읽는 습관이 필요함.',
+  3:'세대 간 소통 역량이 취약함. 젊은 세대와의 교류 기회를 의도적으로 늘릴 필요가 있음.',
+  4:'자기 강점·약점 분석이 부족함. SWOT 자기분석을 통해 변화 전략을 세울 필요가 있음.',
+  5:'노후 재무 관리가 취약함. 저축·투자·지출 균형을 점검하고 재무 계획을 수립할 필요가 있음.',
+  6:'세금 및 정책 이해가 부족함. 절세 관련 기초 교육 수강을 권장함.',
+  7:'노후 생활비 설계가 되어 있지 않음. 전문가 상담을 통해 자산관리 계획을 수립할 필요가 있음.',
+  8:'은퇴 후 소득 재원이 불충분함. 국민연금·퇴직연금·개인연금 등 수령액을 지금 바로 확인할 필요가 있음.',
+  9:'자산 포트폴리오 점검이 미흡함. 부동산·금융 자산의 균형을 재검토할 필요가 있음.',
+  10:'식습관 관리가 취약함. 균형 잡힌 식단과 정기 건강검진 습관을 들일 필요가 있음.',
+  11:'운동 등 신체 활동이 부족함. 주 3회 이상 꾸준한 운동 루틴을 만들 필요가 있음.',
+  12:'노화 수용이 어려운 상태임. 노화를 자연스러운 과정으로 받아들이는 마음 준비가 필요함.',
+  13:'의료비 준비가 부족함. 실손보험 및 의료비 적립 계획을 점검할 필요가 있음.',
+  14:'정신건강 관리가 취약함. 스트레스 해소법을 찾고 심리 상담 활용을 고려할 필요가 있음.',
+  15:'경력을 활용한 일거리 창출이 어려운 상태임. 본인의 전문성을 재정의하는 작업이 필요함.',
+  16:'지식·경험 공유 역량이 부족함. 강의·멘토링·글쓰기 등 방법을 탐색할 필요가 있음.',
+  17:'직업 관련 교육 참여가 미흡함. 관련 자격증 또는 재교육 프로그램 수강을 권장함.',
+  18:'새로운 일에 대한 도전 준비가 부족함. 소규모 창업 또는 프리랜서 경험을 탐색할 필요가 있음.',
+  19:'전문 분야나 개인 브랜드가 불명확함. 나만의 강점을 한 문장으로 정의해보는 작업이 필요함.',
+  20:'여가·취미 활동이 부족함. 지금 당장 관심 있는 활동 하나를 시작해볼 필요가 있음.',
+  21:'취미의 소득 연계 가능성이 낮은 상태임. 취미를 발전시킬 방향을 구체적으로 탐색할 필요가 있음.',
+  22:'여가 함께할 사람이 부족함. 동호회·모임 참여를 통해 관계를 넓힐 필요가 있음.',
+  23:'여가 활동을 통한 활력 회복이 부족함. 즐거움을 주는 활동을 의도적으로 늘릴 필요가 있음.',
+  24:'여가를 위한 시간·경비 준비가 부족함. 소소한 여가 예산을 따로 책정할 필요가 있음.',
+  25:'삶의 다양한 역할 균형이 취약함. 역할별 우선순위와 시간 배분을 재정비할 필요가 있음.',
+  26:'소속 없는 시간에 대한 불안이 높은 상태임. 홀로서기 훈련과 자기 주도적 일과 설계가 필요함.',
+  27:'수입 변화에 대한 유연성이 부족함. 다양한 수입 시나리오를 미리 시뮬레이션해볼 필요가 있음.',
+  28:'일·삶 균형 루틴이 없는 상태임. 하루 루틴을 설계하고 실천하는 작은 습관부터 시작할 필요가 있음.',
+  29:'삶의 비전과 목표가 불명확함. 10년 후 원하는 모습을 구체적으로 그려보는 작업이 필요함.',
+  30:'가족·지인과의 소통이 부족함. 정기적인 대화 자리를 만드는 것부터 시작할 필요가 있음.',
+  31:'활력을 주는 사회적 관계망이 약한 상태임. 관심사 기반 모임이나 커뮤니티에 참여할 필요가 있음.',
+  32:'긴급 지원 네트워크가 취약함. 건강·법률·세무 분야의 도움을 청할 연락처를 확보할 필요가 있음.',
+  33:'속 깊은 대화를 나눌 상대가 없는 상태임. 신뢰 관계를 회복하거나 심리 상담을 활용할 필요가 있음.',
+  34:'진로 관련 인맥이 부족함. 동문·직능단체·SNS 등을 통해 네트워크를 적극 확장할 필요가 있음.',
+  35:'주거 환경 개선 노력이 부족함. 거주 공간 점검과 소소한 개선부터 시작할 필요가 있음.',
+  36:'집중하고 편안한 나만의 공간이 없는 상태임. 집 안에 작은 개인 공간을 만들어볼 필요가 있음.',
+  37:'독립 생활을 위한 주거 준비가 부족함. 향후 주거 형태와 비용을 미리 계획할 필요가 있음.',
+  38:'주거 환경 변화 대응력이 낮은 상태임. 이사·리모델링 등 변화에 대한 유연한 마인드셋이 필요함.',
+  39:'생활공간이 건강에 미치는 영향 인식이 부족함. 환경 정리·채광·환기 등 생활 공간 질을 점검할 필요가 있음.',
 };
+
 const QS_ORIG=[
   {a:0,id:0,t:'현재의 직장이나 직업을 그만두더라도, 새롭게 직업세계 변화에 적응할 수 있다.'},
   {a:0,id:1,t:'자신에 대해 잘 알고 있으며 신체적, 정신적, 사회적으로 좋은 상태이다.'},
@@ -301,18 +383,14 @@ const QS_ORIG=[
   {a:7,id:38,t:'주거 환경의 변화(이사, 리모델링 등)에 유연하게 대응할 수 있다.'},
   {a:7,id:39,t:'생활공간이 나의 건강과 행복에 미치는 영향을 인식하고 관리하고 있다.'},
 ];
- 
-// ── Firebase 대신 localStorage 집계 (같은 기기) + 공유 집계용 키
-// 중앙 집계: Anthropic storage API 사용
-const STORE_KEY='nohoo_results_v1';
- 
+
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
- 
+
 let curQ=0,ans=[],QS=[],uName='',rChart=null,aChart=null,dChart=null;
- 
+
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
 function goHome(){show('sw');}
- 
+
 function startQuiz(){
   const v=document.getElementById('nameIn').value.trim();
   if(!v){document.getElementById('nameErr').style.display='block';return;}
@@ -320,7 +398,7 @@ function startQuiz(){
   uName=v; QS=shuffle(QS_ORIG); ans=new Array(40).fill(null); curQ=0;
   renderQ(); show('sq');
 }
- 
+
 function renderQ(){
   const q=QS[curQ],ar=AREAS[q.a];
   const pill=document.getElementById('aPill');
@@ -335,11 +413,11 @@ function renderQ(){
   const bn=document.getElementById('bNext');
   bn.disabled=ans[curQ]===null; bn.textContent=curQ===39?'결과 보기 →':'다음 문항 →';
 }
- 
+
 function pick(s){ans[curQ]=s;renderQ();setTimeout(()=>nextQ(),350);}
 function nextQ(){if(ans[curQ]===null)return;if(curQ<39){curQ++;renderQ();}else showResult();}
 function prevQ(){if(curQ>0){curQ--;renderQ();}else show('sw');}
- 
+
 function calcScores(){
   return AREAS.map((_,i)=>Math.round((QS.reduce((acc,q,qi)=>q.a===i?acc+(ans[qi]||0):acc,0)/5)*10)/10);
 }
@@ -349,33 +427,49 @@ function calcQScores(){
   return res;
 }
 function sc(s){return s>=4?'#27ae60':s>=3?'#e67e22':'#e74c3c';}
- 
+
 function showResult(){
   const scores=calcScores();
+  const qScores=calcQScores();
   const tot=Math.round((scores.reduce((a,b)=>a+b,0)/8)*10)/10;
   document.getElementById('rName').textContent=uName+'님의';
   document.getElementById('totalN').textContent=tot.toFixed(1);
   document.getElementById('totalN').style.color=sc(tot);
   document.getElementById('savedOk').style.display='none';
+
   const bars=document.getElementById('sBars');
   bars.innerHTML='';
   scores.forEach((s,i)=>{
     const c=sc(s);
     bars.innerHTML+='<div class="s-row"><span class="s-nm">'+AREAS[i].l+'. '+AREAS[i].n+'</span><div class="s-bar-bg"><div class="s-bar" style="width:'+(s/5*100)+'%;background:'+c+'"></div></div><span class="s-val" style="color:'+c+'">'+s+'</span></div>';
   });
+
+  // 영역별 최저 문항 감지 → 맞춤 피드백
   const fb=document.getElementById('fbCard');
   fb.innerHTML='<div class="card-ttl" style="margin-bottom:.75rem">맞춤 피드백</div>';
   scores.forEach((s,i)=>{
-    const lv=s>=4?'good':s>=3?'warn':'danger';
+    // 해당 영역 문항 중 최저점 문항 찾기
+    const areaQs=QS_ORIG.filter(q=>q.a===i);
+    const minQ=areaQs.reduce((min,q)=>(qScores[q.id]<qScores[min.id]?q:min));
+    const minScore=qScores[minQ.id];
     const bg=s>=4?'#ecfdf5':s>=3?'#fffbeb':'#fef2f2';
     const tc=s>=4?'#065f46':s>=3?'#92400e':'#991b1b';
     const icon=s>=4?'✅':s>=3?'⚠️':'🔴';
-    fb.innerHTML+='<div class="fb-row"><div class="fb-ico" style="background:'+bg+'">'+icon+'</div><div><div class="fb-area">'+AREAS[i].l+'. '+AREAS[i].n+' · '+s+'점</div><div class="fb-msg">'+FB[lv][i%2]+'</div></div></div>';
+    let html='<div class="fb-row"><div class="fb-ico" style="background:'+bg+'">'+icon+'</div><div style="flex:1"><div class="fb-area">'+AREAS[i].l+'. '+AREAS[i].n+' · '+s+'점</div>';
+    if(s<4){
+      html+='<div class="fb-weak">특히 "'+minQ.t.substring(0,20)+'..." 부분이 취약함. ('+minScore+'점)</div>';
+      html+='<div class="fb-msg">'+Q_FB[minQ.id]+'</div>';
+    } else {
+      html+='<div class="fb-msg" style="color:#065f46">잘 준비된 영역임. 현재 수준을 유지하면서 다른 취약 영역과 연계할 필요가 있음.</div>';
+    }
+    html+='</div></div>';
+    fb.innerHTML+=html;
   });
+
   show('sr');
   setTimeout(()=>{if(rChart)rChart.destroy();rChart=makeRadar('rC',scores);},80);
 }
- 
+
 function makeRadar(id,scores){
   const ctx=document.getElementById(id).getContext('2d');
   return new Chart(ctx,{
@@ -384,99 +478,126 @@ function makeRadar(id,scores){
     options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:9},backdropColor:'transparent',color:'#9CA3AF'},grid:{color:'rgba(0,0,0,0.07)'},pointLabels:{font:{size:11}},angleLines:{color:'rgba(0,0,0,0.07)'}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'점';}}}}}
   });
 }
- 
-function saveResult(){
+
+async function saveResult(){
+  const btn=document.getElementById('saveBtn');
+  btn.disabled=true; btn.textContent='저장 중...';
   const scores=calcScores();
   const qScores=calcQScores();
   const tot=Math.round((scores.reduce((a,b)=>a+b,0)/8)*10)/10;
-  const rec={name:uName,date:new Date().toLocaleString('ko-KR'),scores:scores,qScores:qScores,total:tot};
+  const rec={name:uName,date:new Date().toLocaleString('ko-KR'),scores:scores,qScores:qScores,total:tot,ts:Date.now()};
   try{
-    const raw=localStorage.getItem(STORE_KEY);
-    let all=raw?JSON.parse(raw):[];
-    const idx=all.findIndex(function(r){return r.name===uName;});
-    if(idx>=0)all[idx]=rec;else all.push(rec);
-    localStorage.setItem(STORE_KEY,JSON.stringify(all));
+    if(window._fbReady){
+      await window._setDoc(window._doc(window._db,'results',uName),rec);
+    }
     document.getElementById('savedOk').style.display='block';
-    setTimeout(function(){document.getElementById('savedOk').style.display='none';},3000);
-  }catch(e){alert('저장 중 오류가 발생했습니다.');}
+    btn.textContent='✅ 저장완료!';
+    setTimeout(()=>{document.getElementById('savedOk').style.display='none';btn.disabled=false;btn.textContent='📤 결과 저장하기';},3000);
+  }catch(e){
+    btn.disabled=false; btn.textContent='📤 결과 저장하기';
+    alert('저장 오류: '+e.message);
+  }
 }
- 
-function goAdmin(){show('sa');renderAdmin();}
- 
-function renderAdmin(){
+
+// 강사 비밀번호
+function goAdminPw(){show('spw');document.getElementById('pwIn').value='';document.getElementById('pwErr').style.display='none';}
+function checkPw(){
+  if(document.getElementById('pwIn').value===ADMIN_PW){show('sa');renderAdmin();}
+  else{document.getElementById('pwErr').style.display='block';}
+}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.getElementById('spw').classList.contains('active'))checkPw();});
+
+// 시작화면 상단 로고 5번 탭 → 강사 입장
+let tapCount=0,tapTimer=null;
+document.addEventListener('DOMContentLoaded',function(){
+  const hero=document.querySelector('.w-hero');
+  if(hero)hero.addEventListener('click',function(){
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer=setTimeout(()=>{tapCount=0;},2000);
+    if(tapCount>=5){tapCount=0;goAdminPw();}
+  });
+});
+
+async function renderAdmin(){
   const body=document.getElementById('aBody');
   body.innerHTML='<div class="spin"></div>';
   let all=[];
-  try{const raw=localStorage.getItem(STORE_KEY);all=raw?JSON.parse(raw):[];}catch(e){}
+  try{
+    if(window._fbReady){
+      const snap=await window._getDocs(window._collection(window._db,'results'));
+      snap.forEach(d=>all.push(d.data()));
+      all.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    }
+  }catch(e){body.innerHTML='<div class="empty">데이터 로드 오류: '+e.message+'</div>';return;}
   if(!all.length){body.innerHTML='<div class="empty">아직 저장된 결과가 없습니다.<br>교육생들이 결과 저장 버튼을 누르면<br>여기에 모입니다.</div>';return;}
-  const grp=AREAS.map(function(_,i){return Math.round((all.reduce(function(s,r){return s+r.scores[i];},0)/all.length)*10)/10;});
-  const oa=Math.round((grp.reduce(function(a,b){return a+b;},0)/8)*10)/10;
+
+  const grp=AREAS.map((_,i)=>Math.round((all.reduce((s,r)=>s+r.scores[i],0)/all.length)*10)/10);
+  const oa=Math.round((grp.reduce((a,b)=>a+b,0)/8)*10)/10;
   const maxIdx=grp.indexOf(Math.max.apply(null,grp));
   const minIdx=grp.indexOf(Math.min.apply(null,grp));
   const qAvg=QS_ORIG.map(function(q){
-    const vals=all.filter(function(r){return r.qScores&&r.qScores[q.id]>0;}).map(function(r){return r.qScores[q.id];});
+    const vals=all.filter(r=>r.qScores&&r.qScores[q.id]>0).map(r=>r.qScores[q.id]);
     if(!vals.length)return null;
-    return Math.round((vals.reduce(function(a,b){return a+b;},0)/vals.length)*10)/10;
+    return Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
   });
-  const qWithAvg=QS_ORIG.map(function(q,i){return Object.assign({},q,{avg:qAvg[i]});}).filter(function(q){return q.avg!==null;});
-  const qSorted=qWithAvg.slice().sort(function(a,b){return a.avg-b.avg;});
+  const qWithAvg=QS_ORIG.map((q,i)=>Object.assign({},q,{avg:qAvg[i]})).filter(q=>q.avg!==null);
+  const qSorted=qWithAvg.slice().sort((a,b)=>a.avg-b.avg);
   const bottom5=qSorted.slice(0,5);
   const top5=qSorted.slice().reverse().slice(0,5);
-  const toppers=AREAS.map(function(_,i){const best=all.reduce(function(p,c){return c.scores[i]>p.scores[i]?c:p;});return{name:best.name,score:best.scores[i]};});
+  const toppers=AREAS.map((_,i)=>{const best=all.reduce((p,c)=>c.scores[i]>p.scores[i]?c:p);return{name:best.name,score:best.scores[i]};});
   window._qAvg=qAvg; window._allResults=all;
- 
+
   let html='<div class="metrics"><div class="metric"><div class="m-n">'+all.length+'명</div><div class="m-l">총 응답자</div></div><div class="metric"><div class="m-n" style="color:'+sc(oa)+'">'+oa+'</div><div class="m-l">전체 평균</div></div></div>';
   html+='<div class="hl-grid"><div class="hl-box" style="background:#ecfdf5;border-color:#6ee7b7"><div style="font-size:12px;font-weight:700;color:#065f46;margin-bottom:6px">✅ 가장 강한 영역</div><div style="font-size:17px;font-weight:700;color:#065f46">'+AREAS[maxIdx].l+'. '+AREAS[maxIdx].n+'</div><div style="font-size:13px;color:#065f46;margin-top:2px">평균 '+grp[maxIdx]+'점</div></div><div class="hl-box" style="background:#fef2f2;border-color:#fca5a5"><div style="font-size:12px;font-weight:700;color:#991b1b;margin-bottom:6px">🔴 가장 취약한 영역</div><div style="font-size:17px;font-weight:700;color:#991b1b">'+AREAS[minIdx].l+'. '+AREAS[minIdx].n+'</div><div style="font-size:13px;color:#991b1b;margin-top:2px">평균 '+grp[minIdx]+'점</div></div></div>';
   html+='<div class="card"><div class="card-ttl">그룹 레이더 차트</div><div class="card-sub">전체 응답자 영역별 평균</div><div class="chart-wrap"><canvas id="aC"></canvas></div></div>';
   html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:1rem 1.25rem .75rem"><div class="card-ttl">🔴 집중 보완 필요 문항 TOP 5</div><div class="card-sub" style="margin:0">전체 교육생 평균이 가장 낮은 문항</div></div><div style="padding:0 1.25rem 1rem">';
-  bottom5.forEach(function(q,i){html+='<div class="qlist-row"><div class="qlist-rank" style="color:'+sc(q.avg)+'">'+(i+1)+'</div><div style="flex:1"><div class="qlist-txt">'+q.t+'</div><div class="qlist-meta">'+AREAS[q.a].l+'. '+AREAS[q.a].n+'</div></div><div class="qlist-score" style="color:'+sc(q.avg)+'">'+q.avg+'</div></div>';});
+  bottom5.forEach((q,i)=>{html+='<div class="qlist-row"><div class="qlist-rank" style="color:'+sc(q.avg)+'">'+(i+1)+'</div><div style="flex:1"><div class="qlist-txt">'+q.t+'</div><div class="qlist-meta">'+AREAS[q.a].l+'. '+AREAS[q.a].n+'</div></div><div class="qlist-score" style="color:'+sc(q.avg)+'">'+q.avg+'</div></div>';});
   html+='</div></div>';
   html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:1rem 1.25rem .75rem"><div class="card-ttl">✅ 강점 문항 TOP 5</div><div class="card-sub" style="margin:0">전체 교육생 평균이 가장 높은 문항</div></div><div style="padding:0 1.25rem 1rem">';
-  top5.forEach(function(q,i){html+='<div class="qlist-row"><div class="qlist-rank" style="color:'+sc(q.avg)+'">'+(i+1)+'</div><div style="flex:1"><div class="qlist-txt">'+q.t+'</div><div class="qlist-meta">'+AREAS[q.a].l+'. '+AREAS[q.a].n+'</div></div><div class="qlist-score" style="color:'+sc(q.avg)+'">'+q.avg+'</div></div>';});
+  top5.forEach((q,i)=>{html+='<div class="qlist-row"><div class="qlist-rank" style="color:'+sc(q.avg)+'">'+(i+1)+'</div><div style="flex:1"><div class="qlist-txt">'+q.t+'</div><div class="qlist-meta">'+AREAS[q.a].l+'. '+AREAS[q.a].n+'</div></div><div class="qlist-score" style="color:'+sc(q.avg)+'">'+q.avg+'</div></div>';});
   html+='</div></div>';
   html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:1rem 1.25rem .75rem"><div class="card-ttl">영역별 문항 상세</div><div class="card-sub" style="margin:0">영역 탭 선택 → 문항별 평균 확인</div></div><div style="padding:0 1.25rem .5rem"><div class="area-tabs" id="areaTabs">';
-  AREAS.forEach(function(ar,i){html+='<button class="area-tab" id="tab'+i+'" onclick="selectTab('+i+')" style="color:'+ar.c+';border-color:'+ar.c+'55">'+ar.l+'. '+ar.n+'</button>';});
+  AREAS.forEach((ar,i)=>{html+='<button class="area-tab" id="tab'+i+'" onclick="selectTab('+i+')" style="color:'+ar.c+';border-color:'+ar.c+'55">'+ar.l+'. '+ar.n+'</button>';});
   html+='</div></div><div id="areaQD" style="padding:0 1.25rem 1rem"></div></div>';
   html+='<div style="font-size:17px;font-weight:700;padding:.25rem 0 .5rem">🏆 영역별 최고 점수자</div><div class="top-list">';
-  AREAS.forEach(function(ar,i){const t=toppers[i];html+='<div class="top-row"><div style="font-size:14px;font-weight:700;width:22px;color:'+ar.c+'">'+ar.l+'</div><div style="flex:1"><div style="font-size:15px;font-weight:600;color:#111">'+ar.n+'</div><div style="font-size:13px;color:#9CA3AF;margin-top:1px">'+t.name+'님</div></div><div style="font-size:17px;font-weight:700;color:'+sc(t.score)+'">'+t.score+'점</div></div>';});
+  AREAS.forEach((ar,i)=>{const t=toppers[i];html+='<div class="top-row"><div style="font-size:14px;font-weight:700;width:22px;color:'+ar.c+'">'+ar.l+'</div><div style="flex:1"><div style="font-size:15px;font-weight:600;color:#111">'+ar.n+'</div><div style="font-size:13px;color:#9CA3AF;margin-top:1px">'+t.name+'님</div></div><div style="font-size:17px;font-weight:700;color:'+sc(t.score)+'">'+t.score+'점</div></div>';});
   html+='</div><div style="font-size:17px;font-weight:700;padding:.25rem 0 .5rem">👥 응답자 목록</div><div class="resp-list">';
-  all.slice().reverse().forEach(function(r,ri){const idx=all.length-1-ri;const c=AREAS[idx%8].c;html+='<div class="resp-item" onclick="showDetail('+idx+')"><div class="r-av" style="background:'+c+'20;color:'+c+'">'+r.name[0]+'</div><div class="r-info"><div class="r-nm">'+r.name+'</div><div class="r-dt">'+r.date+'</div></div><div class="r-sc" style="color:'+sc(r.total)+'">'+r.total+'</div></div>';});
+  all.forEach((r,idx)=>{const c=AREAS[idx%8].c;html+='<div class="resp-item" onclick="showDetail('+idx+')"><div class="r-av" style="background:'+c+'20;color:'+c+'">'+r.name[0]+'</div><div class="r-info"><div class="r-nm">'+r.name+'</div><div class="r-dt">'+r.date+'</div></div><div class="r-sc" style="color:'+sc(r.total)+'">'+r.total+'</div></div>';});
   html+='</div>';
   body.innerHTML=html;
-  setTimeout(function(){if(aChart)aChart.destroy();aChart=makeRadar('aC',grp);selectTab(0);},80);
+  setTimeout(()=>{if(aChart)aChart.destroy();aChart=makeRadar('aC',grp);selectTab(0);},80);
 }
- 
+
 function selectTab(idx){
-  AREAS.forEach(function(ar,i){
-    const t=document.getElementById('tab'+i);
-    if(!t)return;
+  AREAS.forEach((ar,i)=>{
+    const t=document.getElementById('tab'+i);if(!t)return;
     if(i===idx){t.style.background=ar.c;t.style.color='#fff';t.style.borderColor=ar.c;}
     else{t.style.background='#fff';t.style.color=ar.c;t.style.borderColor=ar.c+'55';}
   });
-  const el=document.getElementById('areaQD');
-  if(!el)return;
+  const el=document.getElementById('areaQD');if(!el)return;
   const qAvg=window._qAvg||[];
-  const qs=QS_ORIG.filter(function(q){return q.a===idx;}).slice().sort(function(a,b){return (qAvg[a.id]||0)-(qAvg[b.id]||0);});
+  const qs=QS_ORIG.filter(q=>q.a===idx).slice().sort((a,b)=>(qAvg[a.id]||0)-(qAvg[b.id]||0));
   let html='';
-  qs.forEach(function(q){
+  qs.forEach(q=>{
     const avg=qAvg[q.id];if(avg===null)return;
     const c=sc(avg);
     html+='<div style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-size:13px;line-height:1.5;margin-bottom:6px;color:#111">'+q.t+'</div><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#E5E7EB;border-radius:999px;overflow:hidden"><div style="width:'+(avg/5*100)+'%;height:100%;background:'+c+';border-radius:999px"></div></div><div style="font-size:14px;font-weight:700;color:'+c+';width:28px;text-align:right">'+avg+'</div></div></div>';
   });
   el.innerHTML=html||'<div style="padding:12px 0;font-size:13px;color:#9CA3AF">데이터가 없습니다</div>';
 }
- 
+
 function showDetail(idx){
   const all=window._allResults||[];
   const r=all[idx];if(!r)return;
   document.getElementById('shTitle').textContent=r.name+'님 상세 결과';
   let sb='<div style="text-align:center;padding:.5rem 0 1.25rem;border-bottom:1px solid #E5E7EB;margin-bottom:1rem"><div style="font-size:13px;color:#9CA3AF">'+r.date+'</div><div style="font-size:40px;font-weight:700;color:'+sc(r.total)+';margin:.25rem 0">'+r.total+'</div><div style="font-size:14px;color:#6B7280">종합 평균</div></div><div style="height:220px;margin-bottom:1.25rem"><canvas id="dC"></canvas></div>';
-  r.scores.forEach(function(s,i){const c=sc(s);sb+='<div class="s-row"><span class="s-nm" style="font-size:14px">'+AREAS[i].l+'. '+AREAS[i].n+'</span><div class="s-bar-bg"><div class="s-bar" style="width:'+(s/5*100)+'%;background:'+c+'"></div></div><span class="s-val" style="font-size:15px;color:'+c+'">'+s+'</span></div>';});
+  r.scores.forEach((s,i)=>{const c=sc(s);sb+='<div class="s-row"><span class="s-nm" style="font-size:14px">'+AREAS[i].l+'. '+AREAS[i].n+'</span><div class="s-bar-bg"><div class="s-bar" style="width:'+(s/5*100)+'%;background:'+c+'"></div></div><span class="s-val" style="font-size:15px;color:'+c+'">'+s+'</span></div>';});
   if(r.qScores){
     sb+='<div style="margin-top:1rem;font-size:15px;font-weight:700;margin-bottom:.75rem;color:#111">문항별 응답 상세</div>';
-    AREAS.forEach(function(ar,ai){
+    AREAS.forEach((ar,ai)=>{
       sb+='<div style="font-size:13px;font-weight:700;color:'+ar.c+';margin:10px 0 4px">'+ar.l+'. '+ar.n+'</div>';
-      QS_ORIG.filter(function(q){return q.a===ai;}).forEach(function(q){
+      QS_ORIG.filter(q=>q.a===ai).forEach(q=>{
         const v=r.qScores[q.id]||0;const c=sc(v);
         sb+='<div style="padding:6px 0;border-bottom:1px solid #E5E7EB;display:flex;gap:8px;align-items:center"><div style="font-size:12px;line-height:1.4;flex:1;color:#374151">'+q.t+'</div><div style="font-size:15px;font-weight:700;color:'+c+';flex-shrink:0">'+v+'점</div></div>';
       });
@@ -484,16 +605,9 @@ function showDetail(idx){
   }
   document.getElementById('shBody').innerHTML=sb;
   document.getElementById('shOv').classList.add('open');
-  setTimeout(function(){if(dChart)dChart.destroy();dChart=makeRadar('dC',r.scores);},80);
+  setTimeout(()=>{if(dChart)dChart.destroy();dChart=makeRadar('dC',r.scores);},80);
 }
- 
 function closeSheet(e){if(e.target===document.getElementById('shOv'))document.getElementById('shOv').classList.remove('open');}
- 
-function clearAll(){
-  if(!confirm('모든 진단 결과를 삭제할까요?'))return;
-  localStorage.removeItem(STORE_KEY);renderAdmin();
-}
 </script>
 </body>
 </html>
- 
