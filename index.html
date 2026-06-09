@@ -340,8 +340,10 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
   <div class="w-form">
     <label class="w-label" for="nameIn">이름을 입력해 주세요</label>
     <input type="text" id="nameIn" placeholder="예) 홍길동" maxlength="10" autocomplete="off">
-    <p class="w-hint">입력하신 이름으로 결과가 저장됩니다.</p>
-    <div id="nameErr" class="err">이름을 입력해 주세요.</div>
+    <label class="w-label" for="phoneIn" style="margin-top:1.25rem">핸드폰 뒷 4자리</label>
+    <input type="tel" id="phoneIn" placeholder="예) 1234" maxlength="4" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+    <p class="w-hint">동명이인 구분을 위해 사용됩니다.</p>
+    <div id="nameErr" class="err">이름과 핸드폰 뒷 4자리를 모두 입력해 주세요.</div>
     <button class="btn-primary" onclick="startQuiz()">진단 시작하기 →</button>
   </div>
 </div>
@@ -574,9 +576,11 @@ function goHome(){show('sw');}
 
 function startQuiz(){
   const v=document.getElementById('nameIn').value.trim();
-  if(!v){document.getElementById('nameErr').style.display='block';return;}
+  const p=document.getElementById('phoneIn').value.trim();
+  if(!v||p.length<4){document.getElementById('nameErr').style.display='block';return;}
   document.getElementById('nameErr').style.display='none';
-  uName=v;QS=shuffle(QS_ORIG);ans=new Array(40).fill(null);curQ=0;
+  uName=v+'('+p+')';
+  QS=shuffle(QS_ORIG);ans=new Array(40).fill(null);curQ=0;
   renderQ();show('sq');
 }
 
