@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, addDoc, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -310,7 +311,14 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
 .sh-title{font-size:18px;font-weight:700;padding:0 1.5rem 1rem;border-bottom:1px solid var(--line);margin-bottom:.5rem;color:var(--ink);}
 .sh-body{padding:1.25rem 1.5rem;}
 .spin{width:34px;height:34px;border:2.5px solid var(--line);border-top-color:var(--forest);border-radius:50%;animation:sp .75s linear infinite;margin:3rem auto;}
-@keyframes sp{to{transform:rotate(360deg)}}
+@media print{
+  body{background:#fff!important}
+  #sReport{display:flex!important;min-height:auto}
+  .screen:not(#sReport){display:none!important}
+  button{display:none!important}
+  .s-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
 .empty{text-align:center;padding:3rem 1.5rem;color:var(--ink-light);font-size:15px;line-height:1.75;}
 </style>
 </head>
@@ -423,12 +431,34 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif
   </div>
   <div class="r-actions" style="flex-direction:column;gap:10px">
     <button class="btn-next" style="width:100%;height:64px;font-size:17px" onclick="saveResult()" id="saveBtn">📤 결과 저장하기</button>
-    <div style="display:flex;gap:10px">
-      <button id="kakaoBtn" style="flex:1;height:56px;border:none;border-radius:var(--r);background:#FEE500;color:#1A1A1A;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px" onclick="shareKakao()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="#1A1A1A"><path d="M12 3C6.48 3 2 6.48 2 10.8c0 2.76 1.74 5.19 4.36 6.63l-.88 3.28a.5.5 0 0 0 .74.55l3.9-2.59c.61.09 1.24.13 1.88.13 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"/></svg>
-        카카오톡으로 결과 보내기
-      </button>
-      <button class="btn-back" onclick="goHome()" style="flex:0 0 56px;height:56px">🏠</button>
+    <button onclick="captureAndShare()" id="captureBtn" style="width:100%;height:60px;border:none;border-radius:var(--r);background:#FEE500;color:#1A1A1A;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#1A1A1A"><path d="M12 3C6.48 3 2 6.48 2 10.8c0 2.76 1.74 5.19 4.36 6.63l-.88 3.28a.5.5 0 0 0 .74.55l3.9-2.59c.61.09 1.24.13 1.88.13 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"/></svg>
+      결과 이미지 저장 → 카카오톡으로 보내기
+    </button>
+    <button onclick="showFullReport()" style="width:100%;height:52px;border:1.5px solid var(--forest);border-radius:var(--r);background:var(--white);color:var(--forest);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">📋 전체 결과 텍스트 보기</button>
+    <button class="btn-back" onclick="goHome()" style="width:100%;height:52px;font-size:15px;background:var(--white);border:1.5px solid var(--line);border-radius:var(--r);color:var(--ink-light)">🏠 처음으로</button>
+  </div>
+</div>
+
+<!-- 전체 결과 보고서 화면 -->
+<div id="sReport" class="screen">
+  <div style="background:var(--forest);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10">
+    <button onclick="show('sr')" style="width:44px;height:44px;border:none;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;flex-shrink:0">←</button>
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#fff">전체 결과 보고서</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:1px">위아래로 스크롤하며 확인하세요</div>
+    </div>
+    <button onclick="savePDF()" style="margin-left:auto;padding:8px 14px;border:none;border-radius:10px;background:var(--gold);color:#1A1A1A;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🖨️ PDF</button>
+  </div>
+  <div id="reportBody" style="padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:1.25rem;background:var(--bg)"></div>
+  <div style="padding:0 1.5rem 3rem">
+    <div style="background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:1.25rem;text-align:center">
+      <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:.5rem">📸 화면 캡처 방법</div>
+      <div style="font-size:14px;color:var(--ink-light);line-height:1.7">
+        <div style="margin-bottom:.4rem">• <strong>삼성 갤럭시</strong>: 전원 + 볼륨 아래 동시에</div>
+        <div style="margin-bottom:.4rem">• <strong>아이폰</strong>: 측면 버튼 + 볼륨 위 동시에</div>
+        <div>위아래로 스크롤하며 각 화면을 캡처해 주세요</div>
+      </div>
     </div>
   </div>
 </div>
@@ -765,36 +795,123 @@ function showDetail(idx){
   document.getElementById('shOv').classList.add('open');
   setTimeout(()=>{if(dChart)dChart.destroy();dChart=makeRadar('dC',r.scores);},80);
 }
-function shareKakao(){
+function showFullReport(){
   const scores=calcScores();
+  const qScores=calcQScores();
   const tot=Math.round((scores.reduce((a,b)=>a+b,0)/8)*10)/10;
-  const best=AREAS[scores.indexOf(Math.max(...scores))];
-  const worst=AREAS[scores.indexOf(Math.min(...scores))];
-  const txt=uName+'님의 노후준비 진단 결과\n\n'
-    +'종합 평균: '+tot.toFixed(1)+'점 (5점 만점)\n'
-    +'✅ 가장 강한 영역: '+best.l+'. '+best.n+' ('+Math.max(...scores)+'점)\n'
-    +'🔴 가장 취약한 영역: '+worst.l+'. '+worst.n+' ('+Math.min(...scores)+'점)\n\n'
-    +'영역별 점수\n'
-    +scores.map((s,i)=>AREAS[i].l+'. '+AREAS[i].n+': '+s+'점').join('\n');
+  const maxIdx=scores.indexOf(Math.max(...scores));
+  const minIdx=scores.indexOf(Math.min(...scores));
 
-  // 클립보드 복사 후 안내
-  const copy=()=>{
-    if(navigator.clipboard){
-      navigator.clipboard.writeText(txt).then(()=>{
-        alert('✅ 결과가 복사되었어요!\n\n카카오톡을 열고\n대화창에서 길게 누르기 → 붙여넣기 해 주세요.');
-      }).catch(()=>fallback());
-    } else { fallback(); }
-  };
-  const fallback=()=>{
-    const el=document.createElement('textarea');
-    el.value=txt;el.style.position='fixed';el.style.top='-9999px';
-    document.body.appendChild(el);el.select();
-    try{document.execCommand('copy');alert('✅ 결과가 복사되었어요!\n\n카카오톡을 열고\n대화창에서 길게 누르기 → 붙여넣기 해 주세요.');}
-    catch(e){alert('아래 내용을 직접 복사해 카카오톡에 붙여넣기 해 주세요:\n\n'+txt);}
-    document.body.removeChild(el);
-  };
-  copy();
+  let html='';
+
+  // 상단 요약
+  html+=`<div style="background:var(--forest);border-radius:var(--r-lg);padding:1.5rem;color:#fff;text-align:center">
+    <div style="font-size:14px;color:rgba(255,255,255,.65);margin-bottom:.3rem">${uName}님의 노후준비 진단 결과</div>
+    <div style="font-size:52px;font-weight:900;color:${sc(tot)};letter-spacing:-2px;line-height:1">${tot.toFixed(1)}</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.55);margin-top:.3rem">종합 평균 (5점 만점)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1.25rem">
+      <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:.75rem">
+        <div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:4px">✅ 가장 강한 영역</div>
+        <div style="font-size:15px;font-weight:700">${AREAS[maxIdx].l}. ${AREAS[maxIdx].n}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.7)">${scores[maxIdx]}점</div>
+      </div>
+      <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:.75rem">
+        <div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:4px">🔴 가장 취약한 영역</div>
+        <div style="font-size:15px;font-weight:700">${AREAS[minIdx].l}. ${AREAS[minIdx].n}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.7)">${scores[minIdx]}점</div>
+      </div>
+    </div>
+  </div>`;
+
+  // 점수 해석
+  html+=`<div class="card">
+    <div class="card-ttl" style="margin-bottom:.75rem">점수 해석 기준</div>
+    <div class="g-row"><div class="g-dot" style="background:var(--good)"></div><div class="g-txt">우수한 준비 상태</div><div class="g-rng">4.0점 이상</div></div>
+    <div class="g-row"><div class="g-dot" style="background:var(--warn)"></div><div class="g-txt">보통 — 보완 필요</div><div class="g-rng">3.0 ~ 3.9점</div></div>
+    <div class="g-row"><div class="g-dot" style="background:var(--danger)"></div><div class="g-txt">취약 — 집중 관리</div><div class="g-rng">3.0점 미만</div></div>
+  </div>`;
+
+  // 영역별 점수
+  html+=`<div class="card"><div class="card-ttl" style="margin-bottom:1rem">영역별 점수</div>`;
+  scores.forEach((s,i)=>{
+    const c=sc(s);
+    html+=`<div class="s-row"><span class="s-nm">${AREAS[i].l}. ${AREAS[i].n}</span><div class="s-bar-bg"><div class="s-bar" style="width:${s/5*100}%;background:${c}"></div></div><span class="s-val" style="color:${c}">${s}</span></div>`;
+  });
+  html+=`</div>`;
+
+  // 맞춤 피드백
+  html+=`<div class="card"><div class="card-ttl" style="margin-bottom:1rem">맞춤 피드백</div>`;
+  scores.forEach((s,i)=>{
+    const areaQs=QS_ORIG.filter(q=>q.a===i);
+    const minQ=areaQs.reduce((m,q)=>(qScores[q.id]<qScores[m.id]?q:m));
+    const minScore=qScores[minQ.id];
+    const c=sc(s),bg=scBg(s);
+    const icon=s>=4?'✅':s>=3?'⚠️':'🔴';
+    html+=`<div class="fb-item"><div class="fb-top"><div class="fb-icon" style="background:${bg}">${icon}</div><div><div class="fb-area">${AREAS[i].l}. ${AREAS[i].n}</div></div><div class="fb-score" style="color:${c}">${s}점</div></div>`;
+    if(s>=4){
+      html+=`<div class="fb-msg" style="color:#1E6040">이 영역은 매우 잘 준비되어 있어요. 지금처럼 꾸준히 유지하고, 이 강점을 취약한 영역을 보완하는 데 연결해 보세요.</div>`;
+    } else {
+      html+=`<div class="fb-weak">특히 "${minQ.t.substring(0,20)}…" 부분이 취약함 (${minScore}점)</div>`;
+      html+=`<div class="fb-msg">${Q_FB[minQ.id]}</div>`;
+    }
+    html+=`</div>`;
+  });
+  html+=`</div>`;
+
+  // 문항별 상세
+  html+=`<div class="card"><div class="card-ttl" style="margin-bottom:1rem">문항별 응답 상세</div>`;
+  AREAS.forEach((ar,ai)=>{
+    html+=`<div style="font-size:13px;font-weight:700;color:${ar.c};margin:12px 0 6px;padding-top:10px;border-top:1px solid var(--line)">${ar.l}. ${ar.n}</div>`;
+    QS_ORIG.filter(q=>q.a===ai).forEach(q=>{
+      const v=qScores[q.id]||0;const c=sc(v);
+      html+=`<div style="padding:8px 0;border-bottom:1px solid #F5F5F5;display:flex;gap:10px;align-items:flex-start"><div style="font-size:13px;line-height:1.5;flex:1;color:#4A4A4A;word-break:keep-all">${q.t}</div><div style="font-size:15px;font-weight:700;color:${c};flex-shrink:0;min-width:32px;text-align:right">${v}점</div></div>`;
+    });
+  });
+  html+=`</div>`;
+
+  document.getElementById('reportBody').innerHTML=html;
+  show('sReport');
+  window.scrollTo(0,0);
 }
+
+function savePDF(){
+  showFullReport();
+  setTimeout(()=>{
+    alert('📄 PDF 저장 방법\n\n【안드로이드】\n브라우저 우측 상단 ⋮ → 공유 → 인쇄 → PDF로 저장\n\n【아이폰】\n화면 하단 공유 버튼 → 프린트 → 두 손가락으로 확대 → PDF 저장');
+    window.print();
+  }, 300);
+}
+
+async function captureAndShare(){
+  const btn=document.getElementById('captureBtn');
+  btn.disabled=true;
+  btn.innerHTML='⏳ 이미지 만드는 중...';
+  showFullReport();
+  await new Promise(r=>setTimeout(r,800));
+  try{
+    const el=document.getElementById('reportBody');
+    const canvas=await html2canvas(el,{
+      scale:2,useCORS:true,
+      backgroundColor:'#F8F7F5',
+      scrollY:0,
+      width:el.offsetWidth,
+      height:el.scrollHeight,
+      windowHeight:el.scrollHeight,
+    });
+    const link=document.createElement('a');
+    link.download=uName+'_노후준비진단결과.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    await new Promise(r=>setTimeout(r,500));
+    alert('✅ 이미지가 저장되었어요!\n\n카카오톡에서 나에게 보내기\n① 카카오톡 열기\n② 내 채팅방(나) 선택\n③ 하단 + → 앨범\n④ 방금 저장된 이미지 선택 → 전송!');
+  }catch(e){
+    alert('이미지 저장 중 오류가 발생했어요.\n\n대신 화면 캡처를 사용해 주세요.\n• 갤럭시: 전원 + 볼륨 아래 동시에\n• 아이폰: 측면 버튼 + 볼륨 위 동시에');
+  }
+  show('sr');
+  btn.disabled=false;
+  btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="#1A1A1A"><path d="M12 3C6.48 3 2 6.48 2 10.8c0 2.76 1.74 5.19 4.36 6.63l-.88 3.28a.5.5 0 0 0 .74.55l3.9-2.59c.61.09 1.24.13 1.88.13 5.52 0 10-3.48 10-7.8S17.52 3 12 3z"/></svg> 결과 이미지 저장 → 카카오톡으로 보내기';
+}
+
 function closeSheet(e){if(e.target===document.getElementById('shOv'))document.getElementById('shOv').classList.remove('open');}
 </script>
 </body>
