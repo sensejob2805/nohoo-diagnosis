@@ -1,0 +1,499 @@
+
+raw
+Index · HTML
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>생애영역별 노후준비 진단</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;background:#F3F4F6;color:#111}
+.screen{display:none;flex-direction:column;min-height:100vh}.screen.active{display:flex}
+/* WELCOME */
+.w-hero{background:#1a3a28;padding:2rem 1.25rem 1.75rem}
+.w-badge{display:inline-block;font-size:13px;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,0.15);color:#aed6b8;margin-bottom:1.25rem;font-weight:500}
+.w-title{font-size:28px;font-weight:700;line-height:1.35;margin-bottom:.75rem;color:#fff}
+.w-desc{font-size:15px;color:rgba(255,255,255,0.7);line-height:1.7}
+.w-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1.5rem}
+.w-stat{background:rgba(255,255,255,0.1);border-radius:12px;padding:1rem;text-align:center}
+.w-stat-n{font-size:24px;font-weight:700;color:#fff}.w-stat-l{font-size:13px;color:rgba(255,255,255,0.6);margin-top:3px}
+.w-form{padding:1.5rem 1.25rem;background:#fff;flex:1}
+.w-label{font-size:17px;font-weight:600;margin-bottom:.75rem;display:block;color:#111}
+.w-input{width:100%;padding:16px 18px;border:1.5px solid #D1D5DB;border-radius:12px;font-size:20px;background:#fff;color:#111;outline:none;font-family:inherit}
+.w-input:focus{border-color:#1a3a28}
+.btn-big{width:100%;margin-top:1.25rem;padding:20px;background:#1a3a28;color:#fff;border:none;border-radius:12px;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-big:active{opacity:.85}
+.btn-outline{width:100%;margin-top:.75rem;padding:16px;background:transparent;border:1.5px solid #D1D5DB;border-radius:12px;font-size:15px;cursor:pointer;color:#6B7280;font-family:inherit}
+.err{font-size:14px;color:#e74c3c;margin-top:.5rem;display:none}
+/* QUIZ */
+.q-header{background:#fff;border-bottom:1px solid #E5E7EB;padding:1rem 1.25rem;position:sticky;top:0;z-index:10}
+.q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.area-pill{font-size:14px;font-weight:600;padding:5px 14px;border-radius:999px}
+.q-cnt{font-size:14px;color:#6B7280;font-weight:500}
+.prog{height:5px;background:#E5E7EB;border-radius:999px;overflow:hidden}
+.prog-f{height:100%;background:#1a3a28;border-radius:999px;transition:width .4s}
+.q-body{flex:1;padding:1.25rem;display:flex;flex-direction:column;gap:1rem}
+.q-card{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:1.5rem 1.25rem}
+.q-num{font-size:13px;color:#9CA3AF;letter-spacing:.5px;margin-bottom:.6rem}
+.q-txt{font-size:19px;line-height:1.7;font-weight:500;color:#111}
+.scale-labels{display:flex;justify-content:space-between;padding:0 2px;margin-bottom:8px}
+.sl-item{font-size:11px;color:#9CA3AF;text-align:center;flex:1;line-height:1.3}
+.scale-btns{display:flex;gap:8px}
+.sc-btn{flex:1;border:2px solid #E5E7EB;border-radius:12px;padding:16px 4px 12px;background:#fff;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:all .15s;font-family:inherit;min-height:72px;justify-content:center}
+.sc-btn:active{transform:scale(.95)}
+.sc-num{font-size:26px;font-weight:700;line-height:1}
+.sc-btn.s5{border-color:#27ae60;background:#f0fbf4}.sc-btn.s5 .sc-num{color:#1a6b3a}
+.sc-btn.s4{border-color:#52be80;background:#f5fdf8}.sc-btn.s4 .sc-num{color:#1e8449}
+.sc-btn.s3{border-color:#f0b429;background:#fffbf0}.sc-btn.s3 .sc-num{color:#b7770d}
+.sc-btn.s2{border-color:#e67e22;background:#fff6ee}.sc-btn.s2 .sc-num{color:#ca6f1e}
+.sc-btn.s1{border-color:#e74c3c;background:#fff5f5}.sc-btn.s1 .sc-num{color:#b03a2e}
+.sc-btn.s5.sel{background:#27ae60;border-color:#1a6b3a}.sc-btn.s5.sel .sc-num{color:#fff}
+.sc-btn.s4.sel{background:#52be80;border-color:#1e8449}.sc-btn.s4.sel .sc-num{color:#fff}
+.sc-btn.s3.sel{background:#f0b429;border-color:#b7770d}.sc-btn.s3.sel .sc-num{color:#fff}
+.sc-btn.s2.sel{background:#e67e22;border-color:#ca6f1e}.sc-btn.s2.sel .sc-num{color:#fff}
+.sc-btn.s1.sel{background:#e74c3c;border-color:#b03a2e}.sc-btn.s1.sel .sc-num{color:#fff}
+.sc-btn.sel{transform:scale(1.06)}
+.sel-fb{text-align:center;font-size:14px;font-weight:600;min-height:22px;margin-top:6px}
+.q-nav{display:flex;gap:10px;padding:1rem 1.25rem 2.5rem;background:#F3F4F6}
+.btn-prev{flex:0 0 60px;height:60px;border:1.5px solid #D1D5DB;border-radius:12px;background:#fff;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center}
+.btn-nxt{flex:1;height:60px;border:none;border-radius:12px;background:#1a3a28;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-nxt:disabled{opacity:.3;cursor:not-allowed}
+/* RESULT */
+.r-hero{background:#1a3a28;padding:2rem 1.25rem 1.75rem;text-align:center}
+.r-name{font-size:15px;color:rgba(255,255,255,.65);margin-bottom:.4rem}
+.r-ttl{font-size:22px;font-weight:700;color:#fff;margin-bottom:1.25rem}
+.r-total{display:inline-block;background:rgba(255,255,255,.12);border-radius:14px;padding:1rem 2.5rem}
+.r-total-n{font-size:48px;font-weight:700;line-height:1}
+.r-total-l{font-size:14px;color:rgba(255,255,255,.6);margin-top:.3rem}
+.saved-ok{background:#ecfdf5;border:1px solid #6ee7b7;border-radius:10px;padding:12px 16px;font-size:15px;color:#065f46;text-align:center;margin:0 1.25rem .5rem;display:none}
+.r-body{padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:1.5rem 1.25rem}
+.card-ttl{font-size:18px;font-weight:700;margin-bottom:.3rem;color:#111}
+.card-sub{font-size:14px;color:#6B7280;margin-bottom:1.25rem}
+.chart-wrap{position:relative;height:260px;margin-bottom:.75rem}
+.s-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.s-nm{font-size:15px;color:#6B7280;flex:0 0 84px}
+.s-bar-bg{flex:1;height:10px;background:#E5E7EB;border-radius:999px;overflow:hidden}
+.s-bar{height:100%;border-radius:999px}
+.s-val{font-size:17px;font-weight:700;width:30px;text-align:right}
+.guide-box{background:#F9FAFB;border-radius:12px;padding:1rem;border:1px solid #E5E7EB}
+.gd-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #E5E7EB}
+.gd-row:last-child{border-bottom:none}
+.gd-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.gd-txt{font-size:14px;flex:1}.gd-range{font-size:13px;color:#6B7280}
+.fb-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #E5E7EB}
+.fb-row:last-child{border-bottom:none;padding-bottom:0}
+.fb-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.fb-area{font-size:13px;color:#6B7280;margin-bottom:3px}
+.fb-msg{font-size:15px;line-height:1.55;color:#111}
+.r-actions{padding:0 1.25rem 2.5rem;display:flex;gap:10px}
+/* ADMIN */
+.adm-hero{background:#fff;border-bottom:1px solid #E5E7EB;padding:1.5rem 1.25rem}
+.adm-hero h2{font-size:22px;font-weight:700;margin-bottom:.3rem;color:#111}
+.adm-hero p{font-size:15px;color:#6B7280}
+.adm-body{padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:1.25rem;text-align:center}
+.m-n{font-size:30px;font-weight:700}.m-l{font-size:14px;color:#6B7280;margin-top:4px}
+.hl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hl-box{border-radius:14px;padding:1rem 1.25rem;border:1px solid}
+.qlist-row{padding:10px 0;border-bottom:1px solid #E5E7EB;display:flex;gap:10px;align-items:flex-start}
+.qlist-row:last-child{border-bottom:none}
+.qlist-rank{font-size:13px;font-weight:700;width:20px;flex-shrink:0;padding-top:2px}
+.qlist-txt{font-size:13px;line-height:1.5;margin-bottom:3px;color:#111}
+.qlist-meta{font-size:11px;color:#9CA3AF}
+.qlist-score{font-size:16px;font-weight:700;flex-shrink:0}
+.area-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.area-tab{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid #E5E7EB;cursor:pointer;background:#fff;font-family:inherit}
+.resp-list{background:#fff;border:1px solid #E5E7EB;border-radius:14px;overflow:hidden}
+.resp-item{display:flex;align-items:center;gap:12px;padding:14px 1.25rem;border-bottom:1px solid #E5E7EB;cursor:pointer}
+.resp-item:last-child{border-bottom:none}
+.resp-item:active{background:#F9FAFB}
+.r-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.r-info{flex:1}.r-nm{font-size:16px;font-weight:600;color:#111}.r-dt{font-size:12px;color:#9CA3AF;margin-top:2px}
+.r-sc{font-size:20px;font-weight:700}
+.top-list{background:#fff;border:1px solid #E5E7EB;border-radius:14px;overflow:hidden}
+.top-row{display:flex;align-items:center;gap:12px;padding:14px 1.25rem;border-bottom:1px solid #E5E7EB}
+.top-row:last-child{border-bottom:none}
+.sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none;align-items:flex-end}
+.sheet-ov.open{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding-bottom:2.5rem}
+.sh-handle{width:36px;height:4px;background:#D1D5DB;border-radius:999px;margin:14px auto 1.25rem}
+.sh-title{font-size:18px;font-weight:700;padding:0 1.25rem 1rem;border-bottom:1px solid #E5E7EB;margin-bottom:.5rem;color:#111}
+.sh-body{padding:1.25rem}
+.spin{width:32px;height:32px;border:2px solid #E5E7EB;border-top-color:#1a3a28;border-radius:50%;animation:sp .7s linear infinite;margin:2rem auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:3rem 1.25rem;color:#6B7280;font-size:16px;line-height:1.6}
+</style>
+</head>
+<body>
+ 
+<!-- WELCOME -->
+<div id="sw" class="screen active">
+  <div class="w-hero">
+    <div class="w-badge">생애발달과 진로발달</div>
+    <h1 class="w-title">생애영역별<br>노후준비 진단</h1>
+    <p class="w-desc">8가지 영역에서 나의 노후 준비 상태를 점검하고, 결과를 그래프로 확인해 보세요.</p>
+    <div class="w-stats">
+      <div class="w-stat"><div class="w-stat-n">8</div><div class="w-stat-l">진단 영역</div></div>
+      <div class="w-stat"><div class="w-stat-n">40</div><div class="w-stat-l">진단 문항</div></div>
+    </div>
+  </div>
+  <div class="w-form">
+    <label class="w-label" for="nameIn">이름을 입력해 주세요</label>
+    <input type="text" id="nameIn" placeholder="예) 홍길동" maxlength="10" autocomplete="off">
+    <p style="font-size:14px;color:#9CA3AF;margin-top:.5rem">입력하신 이름으로 결과가 저장됩니다.</p>
+    <div id="nameErr" class="err">이름을 입력해 주세요</div>
+    <button class="btn-big" onclick="startQuiz()">진단 시작하기 →</button>
+    <button class="btn-outline" onclick="goAdmin()">교육자 대시보드</button>
+  </div>
+</div>
+ 
+<!-- QUIZ -->
+<div id="sq" class="screen">
+  <div class="q-header">
+    <div class="q-top">
+      <span class="area-pill" id="aPill"></span>
+      <span class="q-cnt" id="qCnt"></span>
+    </div>
+    <div class="prog"><div class="prog-f" id="pF" style="width:2.5%"></div></div>
+  </div>
+  <div class="q-body">
+    <div class="q-card">
+      <div class="q-num" id="qNum"></div>
+      <div class="q-txt" id="qTxt"></div>
+    </div>
+    <div>
+      <div class="scale-labels">
+        <span class="sl-item">매우<br>그렇다</span>
+        <span class="sl-item">그렇다</span>
+        <span class="sl-item">보통</span>
+        <span class="sl-item">아니다</span>
+        <span class="sl-item">전혀<br>아니다</span>
+      </div>
+      <div class="scale-btns">
+        <button class="sc-btn s5" id="btn5" onclick="pick(5)"><span class="sc-num">5</span></button>
+        <button class="sc-btn s4" id="btn4" onclick="pick(4)"><span class="sc-num">4</span></button>
+        <button class="sc-btn s3" id="btn3" onclick="pick(3)"><span class="sc-num">3</span></button>
+        <button class="sc-btn s2" id="btn2" onclick="pick(2)"><span class="sc-num">2</span></button>
+        <button class="sc-btn s1" id="btn1" onclick="pick(1)"><span class="sc-num">1</span></button>
+      </div>
+      <div class="sel-fb" id="selFb"></div>
+    </div>
+  </div>
+  <div class="q-nav">
+    <button class="btn-prev" onclick="prevQ()">←</button>
+    <button class="btn-nxt" id="bNext" onclick="nextQ()" disabled>다음 문항</button>
+  </div>
+</div>
+ 
+<!-- RESULT -->
+<div id="sr" class="screen">
+  <div class="r-hero">
+    <div class="r-name" id="rName"></div>
+    <div class="r-ttl">노후준비 진단 결과</div>
+    <div class="r-total">
+      <div class="r-total-n" id="totalN">--</div>
+      <div class="r-total-l">종합 평균 점수 (5점 만점)</div>
+    </div>
+  </div>
+  <div id="savedOk" class="saved-ok">✅ 결과가 저장되었습니다!</div>
+  <div class="r-body">
+    <div class="guide-box">
+      <div style="font-size:14px;font-weight:700;margin-bottom:.6rem;color:#111">📌 점수 해석 기준</div>
+      <div class="gd-row"><div class="gd-dot" style="background:#27ae60"></div><div class="gd-txt">우수한 준비 상태</div><div class="gd-range">4.0점 이상</div></div>
+      <div class="gd-row"><div class="gd-dot" style="background:#e67e22"></div><div class="gd-txt">보통 — 보완이 필요해요</div><div class="gd-range">3.0 ~ 3.9점</div></div>
+      <div class="gd-row"><div class="gd-dot" style="background:#e74c3c"></div><div class="gd-txt">취약 — 집중 관리 필요</div><div class="gd-range">3.0점 미만</div></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">레이더 차트</div>
+      <div class="card-sub">바깥쪽에 가까울수록 잘 준비된 영역입니다</div>
+      <div class="chart-wrap"><canvas id="rC"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">영역별 점수</div>
+      <div class="card-sub">각 영역 5문항의 평균 점수 (5점 만점)</div>
+      <div id="sBars"></div>
+    </div>
+    <div class="card" id="fbCard"><div class="card-ttl" style="margin-bottom:.75rem">맞춤 피드백</div></div>
+  </div>
+  <div class="r-actions">
+    <button class="btn-nxt" style="flex:1;height:60px;font-size:17px" onclick="saveResult()">📤 결과 저장하기</button>
+    <button class="btn-prev" onclick="goHome()">🏠</button>
+  </div>
+</div>
+ 
+<!-- ADMIN -->
+<div id="sa" class="screen">
+  <div class="adm-hero"><h2>교육자 대시보드</h2><p>전체 교육생 진단 결과 상세 분석</p></div>
+  <div class="adm-body" id="aBody"></div>
+  <div style="padding:0 1.25rem 2.5rem;display:flex;gap:10px">
+    <button class="btn-outline" style="flex:1" onclick="show('sw')">← 돌아가기</button>
+    <button class="btn-outline" style="flex:0 0 auto;color:#e74c3c;border-color:#e74c3c" onclick="clearAll()">전체 삭제</button>
+  </div>
+</div>
+ 
+<!-- SHEET -->
+<div class="sheet-ov" id="shOv" onclick="closeSheet(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="shTitle"></div>
+    <div class="sh-body" id="shBody"></div>
+  </div>
+</div>
+ 
+<script>
+const AREAS=[
+  {n:'변화관리',l:'가',c:'#2A5C45'},{n:'자산관리',l:'나',c:'#1A6B8A'},
+  {n:'건강관리',l:'다',c:'#7B4F9E'},{n:'내 일 관리',l:'라',c:'#C0392B'},
+  {n:'여가·취미',l:'마',c:'#E67E22'},{n:'삶의 균형',l:'바',c:'#27AE60'},
+  {n:'관계관리',l:'사',c:'#2980B9'},{n:'주거·공간',l:'아',c:'#8E44AD'},
+];
+const SEL_LABELS={5:'5점 — 매우 그렇다',4:'4점 — 그렇다',3:'3점 — 보통',2:'2점 — 아니다',1:'1점 — 전혀 아니다'};
+const SEL_COLORS={5:'#1a6b3a',4:'#1e8449',3:'#b7770d',2:'#ca6f1e',1:'#b03a2e'};
+const FB={
+  good:['매우 잘 준비되어 있습니다. 이 강점을 다른 영역에도 연결해 보세요.','훌륭한 준비 상태입니다. 지금처럼 유지해 주세요.'],
+  warn:['기본은 갖춰져 있으나 더 구체적인 계획이 필요합니다.','어느 정도 준비되어 있습니다. 실행 목표를 세워 보강해 보세요.'],
+  danger:['지금 바로 집중적인 점검과 준비가 필요합니다.','작은 것부터 하나씩 시작해 보세요. 전문가 상담도 도움이 됩니다.'],
+};
+const QS_ORIG=[
+  {a:0,id:0,t:'현재의 직장이나 직업을 그만두더라도, 새롭게 직업세계 변화에 적응할 수 있다.'},
+  {a:0,id:1,t:'자신에 대해 잘 알고 있으며 신체적, 정신적, 사회적으로 좋은 상태이다.'},
+  {a:0,id:2,t:'내가 관심 있는 분야의 정보와 시장의 변화를 잘 읽을 수 있다.'},
+  {a:0,id:3,t:'새로운 트렌드를 잘 이해하고 있으며 젊은 세대와 소통이 어렵지 않다.'},
+  {a:0,id:4,t:'나의 장단점과 기회 및 위협요인을 알고 변화의 흐름에 적응할 수 있다.'},
+  {a:1,id:5,t:'노후의 실질소득 감소에 대비한 저축, 투자, 지출을 관리하고 있다.'},
+  {a:1,id:6,t:'제도 및 정책에 대해 이해하고 절세를 위한 학습을 하고 있다.'},
+  {a:1,id:7,t:'전문적인 노후 자산관리 계획이나 생활비 설계를 해본 적이 있다.'},
+  {a:1,id:8,t:'은퇴 후 소득이 줄어도 안정적으로 생활할 수 있는 재원이 있다.'},
+  {a:1,id:9,t:'부동산, 금융, 연금 등 자산 포트폴리오를 점검하고 있다.'},
+  {a:2,id:10,t:'질병에 대한 정보를 알고 있으며 건강하고 균형적인 식습관을 실천하고 있다.'},
+  {a:2,id:11,t:'현재 건강을 위해 지속적으로 필요하거나 가능한 활동(운동 등)을 하고 있다.'},
+  {a:2,id:12,t:'신체적 노화를 받아들이며 수용적으로 대비하고 있다.'},
+  {a:2,id:13,t:'의료비를 포함한 적정 수준의 건강유지비가 준비되어 있다.'},
+  {a:2,id:14,t:'정신적인 건강의 중요성을 인식하고 스트레스 및 감정관리를 하고 있다.'},
+  {a:3,id:15,t:'나의 지식과 경력을 활용한 일거리를 창출할 수 있다.'},
+  {a:3,id:16,t:'경험과 지식을 공유할 수 있으며, 필요한 학습을 통해 개발하고 있다.'},
+  {a:3,id:17,t:'현재 참여하고 있는 직업과 관련된 교육을 나는 적극적으로 수행하고 있다.'},
+  {a:3,id:18,t:'새로운 일(창업, 프리랜서 등)에 도전할 준비가 되어 있다.'},
+  {a:3,id:19,t:'나만의 전문 분야나 브랜드(강점)를 가지고 있다.'},
+  {a:4,id:20,t:'취미나 여가 생활을 새롭게 탐색 중이거나 실행하고 있다.'},
+  {a:4,id:21,t:'취미나 여가활동을 발전시킨다면 일거리 전환 및 소득 발생도 가능하다.'},
+  {a:4,id:22,t:'여가나 취미를 같이 하고 싶은 사람들이 있으며, 가족들이 인정해주는 편이다.'},
+  {a:4,id:23,t:'충분한 여가나 취미생활을 통해 스트레스가 해소되고 삶의 활력을 찾고 있다.'},
+  {a:4,id:24,t:'취미, 여가를 위해 쓸 자원(시간과 경비)을 잘 준비하고 있다.'},
+  {a:5,id:25,t:'삶의 다양한 역할(직업인, 부모, 자녀 등)을 균형적으로 잘 수행하고 있다.'},
+  {a:5,id:26,t:'소속되지 않은 상황에서, 개인적인 시간이 늘어나더라도 걱정이 없다.'},
+  {a:5,id:27,t:'사업 혹 부수입에 따라 생각을 유연하게 조정할 수 있다.'},
+  {a:5,id:28,t:'일과 삶의 균형을 위한 나만의 루틴이나 원칙이 있다.'},
+  {a:5,id:29,t:'미래의 삶에 대한 구체적인 비전이나 목표를 갖고 있다.'},
+  {a:6,id:30,t:'가족 혹은 중요한 지인과 부담 없이 자주 대화를 하며 중요한 일을 논의한다.'},
+  {a:6,id:31,t:'학연, 취미, SNS 등의 지적이며 활력이 되는 친근한 관계나 모임이 있다.'},
+  {a:6,id:32,t:'생활 속에서 긴급한 도움을 청할 사람들(건강, 세무, 법률 등)이 있다.'},
+  {a:6,id:33,t:'힘들고 어려울 때 마음을 터놓고 솔직하게 대화할 사람이 있다.'},
+  {a:6,id:34,t:'진로전환에 도움을 주거나 정보교환을 할 인맥이 있다.'},
+  {a:7,id:35,t:'주거지 개선 또는 변화를 위한 노력을 기울이고 있다.'},
+  {a:7,id:36,t:'내가 편안하게 느끼고 집중할 수 있는 공간이 있다.'},
+  {a:7,id:37,t:'나의 독립적인 생활에 필요한 주거 공간에 대한 준비를 하고 있다.'},
+  {a:7,id:38,t:'주거 환경의 변화(이사, 리모델링 등)에 유연하게 대응할 수 있다.'},
+  {a:7,id:39,t:'생활공간이 나의 건강과 행복에 미치는 영향을 인식하고 관리하고 있다.'},
+];
+ 
+// ── Firebase 대신 localStorage 집계 (같은 기기) + 공유 집계용 키
+// 중앙 집계: Anthropic storage API 사용
+const STORE_KEY='nohoo_results_v1';
+ 
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+ 
+let curQ=0,ans=[],QS=[],uName='',rChart=null,aChart=null,dChart=null;
+ 
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function goHome(){show('sw');}
+ 
+function startQuiz(){
+  const v=document.getElementById('nameIn').value.trim();
+  if(!v){document.getElementById('nameErr').style.display='block';return;}
+  document.getElementById('nameErr').style.display='none';
+  uName=v; QS=shuffle(QS_ORIG); ans=new Array(40).fill(null); curQ=0;
+  renderQ(); show('sq');
+}
+ 
+function renderQ(){
+  const q=QS[curQ],ar=AREAS[q.a];
+  const pill=document.getElementById('aPill');
+  pill.textContent=ar.l+'. '+ar.n; pill.style.background=ar.c+'22'; pill.style.color=ar.c;
+  document.getElementById('qCnt').textContent=(curQ+1)+' / 40';
+  document.getElementById('pF').style.width=(((curQ+1)/40)*100)+'%';
+  document.getElementById('qNum').textContent='문항 '+String(curQ+1).padStart(2,'0');
+  document.getElementById('qTxt').textContent=q.t;
+  [5,4,3,2,1].forEach(n=>{const b=document.getElementById('btn'+n);b.className='sc-btn s'+n;if(ans[curQ]===n)b.classList.add('sel');});
+  const fb=document.getElementById('selFb');
+  if(ans[curQ]!==null){fb.textContent=SEL_LABELS[ans[curQ]];fb.style.color=SEL_COLORS[ans[curQ]];}else fb.textContent='';
+  const bn=document.getElementById('bNext');
+  bn.disabled=ans[curQ]===null; bn.textContent=curQ===39?'결과 보기 →':'다음 문항 →';
+}
+ 
+function pick(s){ans[curQ]=s;renderQ();setTimeout(()=>nextQ(),350);}
+function nextQ(){if(ans[curQ]===null)return;if(curQ<39){curQ++;renderQ();}else showResult();}
+function prevQ(){if(curQ>0){curQ--;renderQ();}else show('sw');}
+ 
+function calcScores(){
+  return AREAS.map((_,i)=>Math.round((QS.reduce((acc,q,qi)=>q.a===i?acc+(ans[qi]||0):acc,0)/5)*10)/10);
+}
+function calcQScores(){
+  const res=new Array(40).fill(0);
+  QS.forEach((q,qi)=>{res[q.id]=ans[qi]||0;});
+  return res;
+}
+function sc(s){return s>=4?'#27ae60':s>=3?'#e67e22':'#e74c3c';}
+ 
+function showResult(){
+  const scores=calcScores();
+  const tot=Math.round((scores.reduce((a,b)=>a+b,0)/8)*10)/10;
+  document.getElementById('rName').textContent=uName+'님의';
+  document.getElementById('totalN').textContent=tot.toFixed(1);
+  document.getElementById('totalN').style.color=sc(tot);
+  document.getElementById('savedOk').style.display='none';
+  const bars=document.getElementById('sBars');
+  bars.innerHTML='';
+  scores.forEach((s,i)=>{
+    const c=sc(s);
+    bars.innerHTML+='<div class="s-row"><span class="s-nm">'+AREAS[i].l+'. '+AREAS[i].n+'</span><div class="s-bar-bg"><div class="s-bar" style="width:'+(s/5*100)+'%;background:'+c+'"></div></div><span class="s-val" style="color:'+c+'">'+s+'</span></div>';
+  });
+  const fb=document.getElementById('fbCard');
+  fb.innerHTML='<div class="card-ttl" style="margin-bottom:.75rem">맞춤 피드백</div>';
+  scores.forEach((s,i)=>{
+    const lv=s>=4?'good':s>=3?'warn':'danger';
+    const bg=s>=4?'#ecfdf5':s>=3?'#fffbeb':'#fef2f2';
+    const tc=s>=4?'#065f46':s>=3?'#92400e':'#991b1b';
+    const icon=s>=4?'✅':s>=3?'⚠️':'🔴';
+    fb.innerHTML+='<div class="fb-row"><div class="fb-ico" style="background:'+bg+'">'+icon+'</div><div><div class="fb-area">'+AREAS[i].l+'. '+AREAS[i].n+' · '+s+'점</div><div class="fb-msg">'+FB[lv][i%2]+'</div></div></div>';
+  });
+  show('sr');
+  setTimeout(()=>{if(rChart)rChart.destroy();rChart=makeRadar('rC',scores);},80);
+}
+ 
+function makeRadar(id,scores){
+  const ctx=document.getElementById(id).getContext('2d');
+  return new Chart(ctx,{
+    type:'radar',
+    data:{labels:AREAS.map(a=>a.l+'.'+a.n),datasets:[{data:scores,borderColor:'#1a3a28',backgroundColor:'rgba(26,58,40,0.1)',borderWidth:2.5,pointBackgroundColor:scores.map(s=>sc(s)),pointRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:9},backdropColor:'transparent',color:'#9CA3AF'},grid:{color:'rgba(0,0,0,0.07)'},pointLabels:{font:{size:11}},angleLines:{color:'rgba(0,0,0,0.07)'}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'점';}}}}}
+  });
+}
+ 
+function saveResult(){
+  const scores=calcScores();
+  const qScores=calcQScores();
+  const tot=Math.round((scores.reduce((a,b)=>a+b,0)/8)*10)/10;
+  const rec={name:uName,date:new Date().toLocaleString('ko-KR'),scores:scores,qScores:qScores,total:tot};
+  try{
+    const raw=localStorage.getItem(STORE_KEY);
+    let all=raw?JSON.parse(raw):[];
+    const idx=all.findIndex(function(r){return r.name===uName;});
+    if(idx>=0)all[idx]=rec;else all.push(rec);
+    localStorage.setItem(STORE_KEY,JSON.stringify(all));
+    document.getElementById('savedOk').style.display='block';
+    setTimeout(function(){document.getElementById('savedOk').style.display='none';},3000);
+  }catch(e){alert('저장 중 오류가 발생했습니다.');}
+}
+ 
+function goAdmin(){show('sa');renderAdmin();}
+ 
+function renderAdmin(){
+  const body=document.getElementById('aBody');
+  body.innerHTML='<div class="spin"></div>';
+  let all=[];
+  try{const raw=localStorage.getItem(STORE_KEY);all=raw?JSON.parse(raw):[];}catch(e){}
+  if(!all.length){body.innerHTML='<div class="empty">아직 저장된 결과가 없습니다.<br>교육생들이 결과 저장 버튼을 누르면<br>여기에 모입니다.</div>';return;}
+  const grp=AREAS.map(function(_,i){return Math.round((all.reduce(function(s,r){return s+r.scores[i];},0)/all.length)*10)/10;});
+  const oa=Math.round((grp.reduce(function(a,b){return a+b;},0)/8)*10)/10;
+  const maxIdx=grp.indexOf(Math.max.apply(null,grp));
+  const minIdx=grp.indexOf(Math.min.apply(null,grp));
+  const qAvg=QS_ORIG.map(function(q){
+    const vals=all.filter(function(r){return r.qScores&&r.qScores[q.id]>0;}).map(function(r){return r.qScores[q.id];});
+    if(!vals.length)return null;
+    return Math.round((vals.reduce(function(a,b){return a+b;},0)/vals.length)*10)/10;
+  });
+  const qWithAvg=QS_ORIG.map(function(q,i){return Object.assign({},q,{avg:qAvg[i]});}).filter(function(q){return q.avg!==null;});
+  const qSorted=qWithAvg.slice().sort(function(a,b){return a.avg-b.avg;});
+  const bottom5=qSorted.slice(0,5);
+  const top5=qSorted.slice().reverse().slice(0,5);
+  const toppers=AREAS.map(function(_,i){const best=all.reduce(function(p,c){return c.scores[i]>p.scores[i]?c:p;});return{name:best.name,score:best.scores[i]};});
+  window._qAvg=qAvg; window._allResults=all;
+ 
+  let html='<div class="metrics"><div class="metric"><div class="m-n">'+all.length+'명</div><div class="m-l">총 응답자</div></div><div class="metric"><div class="m-n" style="color:'+sc(oa)+'">'+oa+'</div><div class="m-l">전체 평균</div></div></div>';
+  html+='<div class="hl-grid"><div class="hl-box" style="background:#ecfdf5;border-color:#6ee7b7"><div style="font-size:12px;font-weight:700;color:#065f46;margin-bottom:6px">✅ 가장 강한 영역</div><div style="font-size:17px;font-weight:700;color:#065f46">'+AREAS[maxIdx].l+'. '+AREAS[maxIdx].n+'</div><div style="font-size:13px;color:#065f46;margin-top:2px">평균 '+grp[maxIdx]+'점</div></div><div class="hl-box" style="background:#fef2f2;border-color:#fca5a5"><div style="font-size:12px;font-weight:700;color:#991b1b;margin-bottom:6px">🔴 가장 취약한 영역</div><div style="font-size:17px;font-weight:700;color:#991b1b">'+AREAS[minIdx].l+'. '+AREAS[minIdx].n+'</div><div style="font-size:13px;color:#991b1b;margin-top:2px">평균 '+grp[minIdx]+'점</div></div></div>';
+  html+='<div class="card"><div class="card-ttl">그룹 레이더 차트</div><div class="card-sub">전체 응답자 영역별 평균</div><div class="chart-wrap"><canvas id="aC"></canvas></div></div>';
+  html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:1rem 1.25rem .75rem"><div class="card-ttl">🔴 집중 보완 필요 문항 TOP 5</div><div class="card-sub" style="margin:0">전체 교육생 평균이 가장 낮은 문항</div></div><div style="padding:0 1.25rem 1rem">';
+  bottom5.forEach(function(q,i){html+='<div class="qlist-row"><div class="qlist-rank" style="color:'+sc(q.avg)+'">'+(i+1)+'</div><div style="flex:1"><div class="qlist-txt">'+q.t+'</div><div class="qlist-meta">'+AREAS[q.a].l+'. '+AREAS[q.a].n+'</div></div><div class="qlist-score" style="color:'+sc(q.avg)+'">'+q.avg+'</div></div>';});
+  html+='</div></div>';
+  html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:1rem 1.25rem .75rem"><div class="card-ttl">✅ 강점 문항 TOP 5</div><div class="card-sub" style="margin:0">전체 교육생 평균이 가장 높은 문항</div></div><div style="padding:0 1.25rem 1rem">';
+  top5.forEach(function(q,i){html+='<div class="qlist-row"><div class="qlist-rank" style="color:'+sc(q.avg)+'">'+(i+1)+'</div><div style="flex:1"><div class="qlist-txt">'+q.t+'</div><div class="qlist-meta">'+AREAS[q.a].l+'. '+AREAS[q.a].n+'</div></div><div class="qlist-score" style="color:'+sc(q.avg)+'">'+q.avg+'</div></div>';});
+  html+='</div></div>';
+  html+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:1rem 1.25rem .75rem"><div class="card-ttl">영역별 문항 상세</div><div class="card-sub" style="margin:0">영역 탭 선택 → 문항별 평균 확인</div></div><div style="padding:0 1.25rem .5rem"><div class="area-tabs" id="areaTabs">';
+  AREAS.forEach(function(ar,i){html+='<button class="area-tab" id="tab'+i+'" onclick="selectTab('+i+')" style="color:'+ar.c+';border-color:'+ar.c+'55">'+ar.l+'. '+ar.n+'</button>';});
+  html+='</div></div><div id="areaQD" style="padding:0 1.25rem 1rem"></div></div>';
+  html+='<div style="font-size:17px;font-weight:700;padding:.25rem 0 .5rem">🏆 영역별 최고 점수자</div><div class="top-list">';
+  AREAS.forEach(function(ar,i){const t=toppers[i];html+='<div class="top-row"><div style="font-size:14px;font-weight:700;width:22px;color:'+ar.c+'">'+ar.l+'</div><div style="flex:1"><div style="font-size:15px;font-weight:600;color:#111">'+ar.n+'</div><div style="font-size:13px;color:#9CA3AF;margin-top:1px">'+t.name+'님</div></div><div style="font-size:17px;font-weight:700;color:'+sc(t.score)+'">'+t.score+'점</div></div>';});
+  html+='</div><div style="font-size:17px;font-weight:700;padding:.25rem 0 .5rem">👥 응답자 목록</div><div class="resp-list">';
+  all.slice().reverse().forEach(function(r,ri){const idx=all.length-1-ri;const c=AREAS[idx%8].c;html+='<div class="resp-item" onclick="showDetail('+idx+')"><div class="r-av" style="background:'+c+'20;color:'+c+'">'+r.name[0]+'</div><div class="r-info"><div class="r-nm">'+r.name+'</div><div class="r-dt">'+r.date+'</div></div><div class="r-sc" style="color:'+sc(r.total)+'">'+r.total+'</div></div>';});
+  html+='</div>';
+  body.innerHTML=html;
+  setTimeout(function(){if(aChart)aChart.destroy();aChart=makeRadar('aC',grp);selectTab(0);},80);
+}
+ 
+function selectTab(idx){
+  AREAS.forEach(function(ar,i){
+    const t=document.getElementById('tab'+i);
+    if(!t)return;
+    if(i===idx){t.style.background=ar.c;t.style.color='#fff';t.style.borderColor=ar.c;}
+    else{t.style.background='#fff';t.style.color=ar.c;t.style.borderColor=ar.c+'55';}
+  });
+  const el=document.getElementById('areaQD');
+  if(!el)return;
+  const qAvg=window._qAvg||[];
+  const qs=QS_ORIG.filter(function(q){return q.a===idx;}).slice().sort(function(a,b){return (qAvg[a.id]||0)-(qAvg[b.id]||0);});
+  let html='';
+  qs.forEach(function(q){
+    const avg=qAvg[q.id];if(avg===null)return;
+    const c=sc(avg);
+    html+='<div style="padding:10px 0;border-bottom:1px solid #E5E7EB"><div style="font-size:13px;line-height:1.5;margin-bottom:6px;color:#111">'+q.t+'</div><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#E5E7EB;border-radius:999px;overflow:hidden"><div style="width:'+(avg/5*100)+'%;height:100%;background:'+c+';border-radius:999px"></div></div><div style="font-size:14px;font-weight:700;color:'+c+';width:28px;text-align:right">'+avg+'</div></div></div>';
+  });
+  el.innerHTML=html||'<div style="padding:12px 0;font-size:13px;color:#9CA3AF">데이터가 없습니다</div>';
+}
+ 
+function showDetail(idx){
+  const all=window._allResults||[];
+  const r=all[idx];if(!r)return;
+  document.getElementById('shTitle').textContent=r.name+'님 상세 결과';
+  let sb='<div style="text-align:center;padding:.5rem 0 1.25rem;border-bottom:1px solid #E5E7EB;margin-bottom:1rem"><div style="font-size:13px;color:#9CA3AF">'+r.date+'</div><div style="font-size:40px;font-weight:700;color:'+sc(r.total)+';margin:.25rem 0">'+r.total+'</div><div style="font-size:14px;color:#6B7280">종합 평균</div></div><div style="height:220px;margin-bottom:1.25rem"><canvas id="dC"></canvas></div>';
+  r.scores.forEach(function(s,i){const c=sc(s);sb+='<div class="s-row"><span class="s-nm" style="font-size:14px">'+AREAS[i].l+'. '+AREAS[i].n+'</span><div class="s-bar-bg"><div class="s-bar" style="width:'+(s/5*100)+'%;background:'+c+'"></div></div><span class="s-val" style="font-size:15px;color:'+c+'">'+s+'</span></div>';});
+  if(r.qScores){
+    sb+='<div style="margin-top:1rem;font-size:15px;font-weight:700;margin-bottom:.75rem;color:#111">문항별 응답 상세</div>';
+    AREAS.forEach(function(ar,ai){
+      sb+='<div style="font-size:13px;font-weight:700;color:'+ar.c+';margin:10px 0 4px">'+ar.l+'. '+ar.n+'</div>';
+      QS_ORIG.filter(function(q){return q.a===ai;}).forEach(function(q){
+        const v=r.qScores[q.id]||0;const c=sc(v);
+        sb+='<div style="padding:6px 0;border-bottom:1px solid #E5E7EB;display:flex;gap:8px;align-items:center"><div style="font-size:12px;line-height:1.4;flex:1;color:#374151">'+q.t+'</div><div style="font-size:15px;font-weight:700;color:'+c+';flex-shrink:0">'+v+'점</div></div>';
+      });
+    });
+  }
+  document.getElementById('shBody').innerHTML=sb;
+  document.getElementById('shOv').classList.add('open');
+  setTimeout(function(){if(dChart)dChart.destroy();dChart=makeRadar('dC',r.scores);},80);
+}
+ 
+function closeSheet(e){if(e.target===document.getElementById('shOv'))document.getElementById('shOv').classList.remove('open');}
+ 
+function clearAll(){
+  if(!confirm('모든 진단 결과를 삭제할까요?'))return;
+  localStorage.removeItem(STORE_KEY);renderAdmin();
+}
+</script>
+</body>
+</html>
+ 
